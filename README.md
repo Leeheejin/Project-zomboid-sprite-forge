@@ -54,11 +54,43 @@ uv run --python 3.12 --with pillow python -m pzforge.cli preview dist/MyTiles/42
 
 Copy `dist/MyTiles` into `~/Zomboid/mods` and enable it in the mod menu.
 
-Worked examples: `examples/crate.py` for a simple object; `metal_drum.py`,
-`metal_crate.py`, `wood_table.py`, `sofa.py` (multi-tile fabric),
-`brick_wall.py` (a 4-sprite wall set) and `wood_floor.py` for full recreations
-of vanilla sprites; `wood_drum.py` for the two-stage workflow's composition
-test -- the steel drum's geometry rebuilt in oak.
+Driving this with an AI agent? **[AGENTS.md](AGENTS.md)** is the operating
+manual: task recipes, verification standards and the pitfalls encyclopedia.
+
+## Worked examples
+
+Each example is a complete recipe -- measured geometry plus a stage-1
+materials dict -- and doubles as the tutorial for the path it exercises.
+Every image below is this tool's output; vanilla appears only on the left of
+the labelled comparison shots.
+
+| recipe | exercises | comparison |
+|---|---|---|
+| `crate.py` | the minimal object, a good first read | -- |
+| `metal_drum.py` | cylinder banding, rust accents, drawn fittings | `docs/drum_compare.png` |
+| `metal_crate.py` | box faces, ribbed lid, metallic top contrast | in `docs/all_recreations.png` |
+| `wood_table.py` | plank grain, thin legs, painted floor shadow | in `docs/all_recreations.png` |
+| `wood_floor.py` | the floor path (1 px shift, full diamond) | in `docs/all_recreations.png` |
+| `sofa.py` | multi-tile footprint, fabric class, retouch round trip | below |
+| `brick_wall.py` | wall sets: isolated tiles, per-sprite roles, brick bond | below |
+| `wood_drum.py` | the composition test: steel geometry, oak materials | above |
+
+![vanilla couch vs the two-tile fabric recreation](docs/sofa_compare.png)
+
+![vanilla brick wall set vs the recreation: WallW, WallN, corner, SE post](docs/wall_compare.png)
+
+Facing sets render by rotating the subject under the fixed key light, so an
+east face darkens exactly as vanilla's does -- all four objects and both
+multi-tile layouts:
+
+![the four facings of drum, crate, table and sofa against vanilla](docs/four_facing_sheet.png)
+
+And because the game shows tiles far smaller than the working zoom, every
+material's features are drawn a size class bolder than a 1:1 reading of the
+reference suggests (`texture.bolden`); the right columns are the play-distance
+check:
+
+![vanilla vs forge at 2x, then 1x and 0.5x](docs/bold_sheet.png)
 
 ## Modelling rules the rig enforces
 

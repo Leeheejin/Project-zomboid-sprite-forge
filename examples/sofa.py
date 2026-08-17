@@ -123,7 +123,10 @@ def build_sofa() -> list[bpy.types.Object]:
     # Deep crevice shadow: fabric's wide global spread (signature 0.347) comes
     # from form -- bright domed tops against near-black creases where cushions
     # meet. The map stays smooth; the darkness is geometry.
-    crease_mat = F.forge_material("sofa_crease", "fabric", (0.300, 0.068, 0.030))
+    # Crease value calibrated by column profile: at (0.300,...) the line
+    # rendered R~101 against vanilla's crease floor of 126 -- x1.25.
+    crease_mat = F.forge_material("sofa_crease", "fabric",
+                                  (0.375, 0.085, 0.038))
 
     parts = []
 
@@ -145,29 +148,41 @@ def build_sofa() -> list[bpy.types.Object]:
 
     # One long seat cushion, read straight off the reference -- the two sunken
     # pads of v1 were an invention.
-    seat_len = LENGTH - 2 * ARM_W - 0.06
+    # The cushion fills the well: hugging the arms (0.02 side margin) and
+    # running to 0.10 of the front edge -- with the first build's 0.06/0.16
+    # margins the exposed base read as the seat being too short and shallow.
+    seat_len = LENGTH - 2 * ARM_W - 0.02
+    seat_depth = DEPTH - BACK_T - 0.10
     seat_z = FOOT_H + BASE_H + SEAT_H / 2 - 0.03
-    box("seat", (CX, -0.09, seat_z),
-        (seat_len, DEPTH - BACK_T - 0.16, SEAT_H), cushion_mat)
+    box("seat", (CX, -0.09 - 0.03, seat_z),
+        (seat_len, seat_depth, SEAT_H), cushion_mat)
 
-    # Piping: the sewn welt along cushion edges, a thin brighter roll -- one of
-    # the three painted features that make vanilla read as upholstery.
+    # Piping: the sewn welt along cushion edges -- one of the three painted
+    # features that make vanilla read as upholstery, but a WHISPER, not a
+    # stripe. Measured by column profile: our welt rendered 25 levels above
+    # the cushion top where vanilla's barely registers at all; a bright line
+    # over the darker seat paired with the crease below it and the two read
+    # as one thick drawn outline. Paints scaled x0.92 to sit ~8 levels proud.
     pipe_mat = F.forge_material("sofa_pipe", "fabric",
                                 texture_path=str(FABRIC_PATH),
-                                dark=(0.980, 0.225, 0.090),
-                                light=(1.000, 0.245, 0.100),
+                                dark=(0.902, 0.207, 0.083),
+                                light=(0.920, 0.225, 0.092),
                                 texture_scale=1.3)
-    box("pipe_seat", (CX, -0.09 - (DEPTH - BACK_T - 0.16) / 2 + 0.02,
+    box("pipe_seat", (CX, -0.09 - 0.03 - seat_depth / 2 + 0.02,
                       seat_z + SEAT_H / 2 - 0.005),
         (seat_len + 0.01, 0.022, 0.018), pipe_mat, soft=True)
 
     # Crease shadows: behind the seat at the backrest junction, and under the
-    # seat's front lip.
-    box("crease_back", (CX, DEPTH / 2 - BACK_T - 0.028, seat_z - 0.02),
-        (seat_len + 0.02, 0.035, SEAT_H - 0.02), crease_mat, soft=False)
-    box("crease_front", (CX, -0.09 - (DEPTH - BACK_T - 0.16) / 2 + 0.03,
-                         seat_z - SEAT_H / 2 - 0.008),
-        (seat_len + 0.02, 0.06, 0.03), crease_mat, soft=False)
+    # seat's front lip. Vanilla draws each crease as a THIN 1-2 px line at
+    # value ~126: a 0.03-tall proud block read as a thick outline, and a
+    # 0.014 (sub-pixel) strip aliased into a DOTTED line on the 2:1 diagonal
+    # -- the mysterious black specks. 0.026 = 2 px, the thinnest continuous
+    # line the projection can hold.
+    box("crease_back", (CX, DEPTH / 2 - BACK_T - 0.022, seat_z - 0.02),
+        (seat_len + 0.02, 0.016, SEAT_H - 0.02), crease_mat, soft=False)
+    box("crease_front", (CX, -0.09 - 0.03 - seat_depth / 2 + 0.024,
+                         seat_z - SEAT_H / 2 - 0.002),
+        (seat_len + 0.02, 0.03, 0.026), crease_mat, soft=False)
 
     # Backrest: one tall slab leaning back ~8 degrees, rounded top. Its lean is
     # what keeps the big front face from reading as a flat wall.
