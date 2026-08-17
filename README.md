@@ -134,20 +134,24 @@ reference" and "typical of PZ art" are different questions.
 
 ![All three recreations against their references](docs/all_recreations.png)
 
+Figures are ours vs the reference, measured on the current pipeline's output
+with `pzforge compare` (the historical sections below tell how each gap was
+closed in order):
+
 | | reference | IoU | brightness | contrast | saturation | left/right |
 |---|---|---|---|---|---|---|
-| **Metal drum** (cylinder) | `crafted_01_32` | 97.3% | 0.392 vs 0.404 | 0.090 vs 0.137 | 0.076 vs 0.053 | 1.138 vs 1.416 |
-| **Metal crate** (box) | `constructedobjects_01_46` | 95.5% | 0.420 vs 0.431 | **0.137 vs 0.161** | 0.115 vs 0.101 | **1.331 vs 1.210** |
-| **Cork floor** (floor path) | `floors_interior_tilesandwood_01_6` | **100%** | 0.573 vs 0.580 | 0.047 vs 0.051 | 0.417 vs 0.415 | n/a |
+| **Metal drum** (cylinder) | `crafted_01_32` | 96.7% | 0.416 vs 0.404 | **0.141 vs 0.137** | 0.028 vs 0.053 | **1.441 vs 1.416** |
+| **Metal crate** (box) | `constructedobjects_01_46` | 95.5% | 0.424 vs 0.431 | 0.110 vs 0.161 | 0.102 vs 0.101 | **1.220 vs 1.210** |
+| **Cork floor** (floor path) | `floors_interior_tilesandwood_01_6` | **100%** | 0.576 vs 0.580 | 0.043 vs 0.051 | 0.420 vs 0.415 | n/a |
 
-**The box settles the drum's open question.** The drum's left/right falloff fell well
-short of its reference and the explanation offered was curvature: each half of a
-cylinder averages over a range of normals, so even zero ambient can only read as about
-1.14. A box shows two flat faces, which is what the lighting was calibrated against.
-Its recreation reaches 1.331 against the reference's 1.210 -- it *exceeds* the target.
-The rig's directional lighting was never the limitation; cylinder geometry was.
-The same holds for internal contrast: the box lands at 0.137 where the drum stalled at
-0.090.
+**The drum's falloff question, settled by the toon ramp.** Under plain Cycles
+lighting the drum's left/right falloff stalled at 1.138 against the
+reference's 1.416: each half of a cylinder averages over a range of normals,
+so no physical light could reach the painted contrast. The box exceeded its
+target (its two flat faces are what the lighting was calibrated against),
+which localised the limitation to curvature -- and moving the stylisation
+into the renderer's measured ramp closed it: the drum now lands at 1.441,
+with its internal contrast at 0.141 against vanilla's 0.137.
 
 **The floor is exact.** Its trim box comes out `126x64 at (0, 192)`, byte-identical to
 vanilla's canonical floor box, with a bounding-box delta of zero on all four sides and
@@ -377,6 +381,8 @@ staves for the shell, while the hoops and seam strap stay in the metal class,
 because the fittings on a wooden barrel are iron. The result renders as a
 convincing wooden barrel with zero geometry changes. The same move works in
 any direction: a metal table, a fabric-padded crate, a wooden wall.
+
+![the steel drum, then its geometry rebuilt in oak, four facings](docs/wood_drum_compare.png)
 
 ### Driving the workflow (for people and for AI agents)
 
