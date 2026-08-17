@@ -153,13 +153,17 @@ def build_sofa() -> list[bpy.types.Object]:
 
     # One long seat cushion, read straight off the reference -- the two sunken
     # pads of v1 were an invention.
-    # The cushion fills the well: hugging the arms (0.02 side margin) and
-    # running to 0.10 of the front edge -- with the first build's 0.06/0.16
-    # margins the exposed base read as the seat being too short and shallow.
+    # The cushion fills the well: hugging the arms (0.02 side margin), running
+    # to 0.10 of the front edge, and TUCKED INTO the backrest at the rear --
+    # with the first build's 0.06/0.16 margins the exposed base read as the
+    # seat being too short and shallow, and a gap at the back needed a crease
+    # strip whose two element boundaries drew a triple line at the junction.
     seat_len = LENGTH - 2 * ARM_W - 0.02
-    seat_depth = DEPTH - BACK_T - 0.10
+    seat_front = -0.12 - (DEPTH - BACK_T - 0.10) / 2
+    seat_rear = DEPTH / 2 - BACK_T - 0.01 + 0.03
+    seat_depth = seat_rear - seat_front
     seat_z = FOOT_H + BASE_H + SEAT_H / 2 - 0.03
-    box("seat", (CX, -0.09 - 0.03, seat_z),
+    box("seat", (CX, (seat_front + seat_rear) / 2, seat_z),
         (seat_len, seat_depth, SEAT_H), cushion_mat)
 
     # Piping: the sewn welt along cushion edges -- one of the three painted
@@ -173,19 +177,20 @@ def build_sofa() -> list[bpy.types.Object]:
                                 dark=(0.902, 0.207, 0.083),
                                 light=(0.920, 0.225, 0.092),
                                 texture_scale=1.3)
-    box("pipe_seat", (CX, -0.09 - 0.03 - seat_depth / 2 + 0.02,
+    box("pipe_seat", (CX, seat_front + 0.02,
                       seat_z + SEAT_H / 2 - 0.005),
         (seat_len + 0.01, 0.022, 0.018), pipe_mat, soft=True)
 
-    # Crease shadows: behind the seat at the backrest junction, and under the
-    # seat's front lip. Vanilla draws each crease as a THIN 1-2 px line at
-    # value ~126: a 0.03-tall proud block read as a thick outline, and a
-    # 0.014 (sub-pixel) strip aliased into a DOTTED line on the 2:1 diagonal
-    # -- the mysterious black specks. 0.026 = 2 px, the thinnest continuous
-    # line the projection can hold.
-    box("crease_back", (CX, DEPTH / 2 - BACK_T - 0.022, seat_z - 0.02),
-        (seat_len + 0.02, 0.016, SEAT_H - 0.02), crease_mat, soft=False)
-    box("crease_front", (CX, -0.09 - 0.03 - seat_depth / 2 + 0.024,
+    # Crease shadow under the seat's front lip only. Vanilla draws a crease
+    # as a THIN 1-2 px line at value ~126: a 0.03-tall proud block read as a
+    # thick outline, and a 0.014 (sub-pixel) strip aliased into a DOTTED line
+    # on the 2:1 diagonal -- the mysterious black specks. 0.026 = 2 px, the
+    # thinnest continuous line the projection can hold. There is NO crease
+    # strip at the backrest: the tucked cushion meets the back directly, so
+    # the junction is one element boundary plus contact shading -- a strip
+    # there put its dark fill and BOTH its boundaries' finish accents into
+    # one seam, which read as a line three times heavier than every other.
+    box("crease_front", (CX, seat_front + 0.024,
                          seat_z - SEAT_H / 2 - 0.002),
         (seat_len + 0.02, 0.03, 0.026), crease_mat, soft=False)
 
