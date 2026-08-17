@@ -518,6 +518,17 @@ TOON_LEVELS = {  # relative to S, in linear light
 TOON_LIT_TINT = (0.984, 1.014, 1.016)
 TOON_SHADE_TINT = (1.016, 0.986, 0.984)
 
+#: Contact-shadow (ambient occlusion) term multiplied onto the ramp output.
+#: The key light stands almost behind the camera's view axis, so its cast
+#: shadows fall AWAY from the camera and barely reach the sprite -- vanilla's
+#: corner pockets (a couch seat beside its arm, the foot of a wall of crates)
+#: are occlusion shading, not key shadows. Measured on the vanilla couch: the
+#: seat beside the arm renders at 0.81x of the open seat, as a soft gradient.
+#: Strength calibrated so a tight corner lands there; open faces read AO~1
+#: and keep their calibrated levels.
+AO_STRENGTH = 0.5
+AO_DISTANCE = 0.7
+
 #: Ramp input positions: captured Shader-to-RGB luminance separating the faces,
 #: measured with tools/calibrate_toon.py under the default rig (EEVEE): ambient
 #: alone reads 0.101 on every orientation, E 0.232, S 0.369, top 0.399. Each stop
@@ -609,11 +620,28 @@ def toon_ramp_group(soft: bool = False, levels: dict | None = None,
         element.position = pos
         element.color = col
 
+    # Contact shading: the ramp output darkens toward tight corners by the
+    # measured pocket factor. Applied AFTER quantisation so the pocket is the
+    # soft gradient vanilla paints, not a level jump.
+    ao = nodes.new("ShaderNodeAmbientOcclusion")
+    ao.inputs["Distance"].default_value = AO_DISTANCE
+    ao_scale = nodes.new("ShaderNodeMath")
+    ao_scale.operation = "MULTIPLY_ADD"
+    ao_scale.inputs[1].default_value = AO_STRENGTH
+    ao_scale.inputs[2].default_value = 1.0 - AO_STRENGTH
+    pocket = nodes.new("ShaderNodeMix")
+    pocket.data_type = "RGBA"
+    pocket.blend_type = "MULTIPLY"
+    pocket.inputs["Factor"].default_value = 1.0
+
     out = nodes.new("NodeGroupOutput")
     links.new(diffuse.outputs["BSDF"], capture.inputs["Shader"])
     links.new(capture.outputs["Color"], luminance.inputs["Color"])
     links.new(luminance.outputs["Val"], ramp.inputs["Fac"])
-    links.new(ramp.outputs["Color"], out.inputs["Light"])
+    links.new(ao.outputs["AO"], ao_scale.inputs[0])
+    links.new(ramp.outputs["Color"], pocket.inputs["A"])
+    links.new(ao_scale.outputs["Value"], pocket.inputs["B"])
+    links.new(pocket.outputs["Result"], out.inputs["Light"])
     return group
 
 
@@ -811,14 +839,30 @@ def toon_material(name: str, paint=None, texture_path=None, dark=None, light=Non
 
 
 def use_eevee(scene) -> None:
-    """Toon shading needs Shader to RGB, which only EEVEE evaluates."""
+    """Toon shading needs Shader to RGB, which only EEVEE evaluates.
+
+    The EEVEE feature block is (re)applied here, not only in
+    apply_render_settings: recipes often build the rig while the scene is
+    still on Cycles, and without ray tracing EEVEE Next silently evaluates
+    the Ambient Occlusion node -- the ramp's contact-shadow term -- as 1.0.
+    """
     for engine in ("BLENDER_EEVEE_NEXT", "BLENDER_EEVEE"):
         try:
             scene.render.engine = engine
-            return
+            break
         except TypeError:
             continue
-    raise RuntimeError("no EEVEE engine available for toon shading")
+    else:
+        raise RuntimeError("no EEVEE engine available for toon shading")
+    ev = getattr(scene, "eevee", None)
+    if ev is not None:
+        for attr, value in (("taa_render_samples", 64),
+                            ("use_gtao", True),
+                            ("use_raytracing", True),
+                            ("use_shadows", True),
+                            ("use_fast_gi", True)):
+            if hasattr(ev, attr):
+                setattr(ev, attr, value)
 
 
 def _light_pass_material():
