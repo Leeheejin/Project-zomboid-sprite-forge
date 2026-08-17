@@ -4,9 +4,12 @@ Model custom Project Zomboid tiles in Blender and package them into a loadable m
 with the projection, lighting and tone taken from measurements of the game's own art
 rather than eyeballed.
 
-![Custom crates alternating with vanilla furniture on a vanilla floor](docs/preview.png)
+![Sprites produced by this tool: a brick wall corner, a couch, a steel drum, the same drum rebuilt in oak, a crate and a table](docs/showcase.png)
 
-*Every other object above is a crate rendered by this tool; the rest is vanilla art.*
+*Everything above is this tool's own output -- no vanilla art in this image.
+The goal is to sit convincingly NEXT to vanilla tiles, and the fidelity
+sections below measure honestly how close each piece gets; vanilla sprites
+appear only in the explicitly labelled comparison shots there.*
 
 ## What it does
 
@@ -46,7 +49,7 @@ uv run --python 3.12 --with pillow python -m pzforge.cli build build/crate_cells
 5. Check it against vanilla before shipping:
 
 ```bash
-uv run --python 3.12 --with pillow python -m pzforge.cli preview dist/MyTiles/42/media/texturepacks/mytiles_01.pack --out build/preview.png
+uv run --python 3.12 --with pillow python -m pzforge.cli preview dist/MyTiles/42/media/texturepacks/mytiles_01.pack --out build/preview.png   # scene mixing your tiles with vanilla, for the style gap check
 ```
 
 Copy `dist/MyTiles` into `~/Zomboid/mods` and enable it in the mod menu.

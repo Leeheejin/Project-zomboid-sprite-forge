@@ -210,6 +210,14 @@ def build_drum(mats: dict | None = None) -> list[bpy.types.Object]:
     strap_edge_mat = mats["strap_edge"]
     strap_face_mat = mats["strap_face"]
     lip_mat = mats["lip"]
+    # Finer roles a material swap needs, defaulting into "dark" so the steel
+    # set stays as it was. On the steel drum the cap ring, grooves, bung and
+    # bolts all share one dark paint -- but they are different THINGS: the cap
+    # ring is part of the rim (stave ends on a wooden barrel), the bung is a
+    # stopper (wood on wood), while grooves and bolts are iron either way.
+    # Conflating them was exactly the wooden drum's grey-rim mistake.
+    cap_mat = mats.get("cap", dark_mat)
+    bung_mat = mats.get("bung", dark_mat)
 
     r = DIAMETER / 2
     parts = []
@@ -241,7 +249,7 @@ def build_drum(mats: dict | None = None) -> list[bpy.types.Object]:
     # is what turned an earlier attempt's drum into a featureless dark disc.
     body = cylinder("drum_body", r, body_top - LID_RECESS,
                     (body_top - LID_RECESS) / 2, body_mat)
-    body.data.materials.append(dark_mat)
+    body.data.materials.append(cap_mat)
     # Select the cap by its normal, not by z. The primitive's location goes into the
     # object transform, so mesh coordinates are centred on the origin and a world-z
     # test (poly.center.z > body_top) matched nothing -- the lid silently rendered
@@ -297,7 +305,7 @@ def build_drum(mats: dict | None = None) -> list[bpy.types.Object]:
     # projection (screen-right = 64 px/m of x+y, screen-up = 32 px/m of y-x) to a
     # point at 85% of the lid radius toward the front-left.
     bung_z = body_top + 0.006
-    cylinder("drum_bung", 0.036, 0.012, bung_z, dark_mat,
+    cylinder("drum_bung", 0.036, 0.012, bung_z, bung_mat,
              smooth=False, verts=16).location = (0.075, -0.29, bung_z)
 
     # Bolt heads dotted along the lower groove, as in the sprite.

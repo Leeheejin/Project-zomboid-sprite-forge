@@ -46,15 +46,25 @@ def make_grain() -> Path:
 def wood_drum_materials() -> dict:
     """Stage 1 in oak. Paints borrow the wooden table's measured family; the
     class supplies everything else (wood hue correction, 0.40-1.60 swing,
-    0.22-0.78 ramp). Fittings keep the metal class untouched."""
+    0.22-0.78 ramp).
+
+    The role split matters more than the paints: the rim (chime + cap ring)
+    is a MATERIAL-BORN shape -- rolled steel on the drum, stave ends on a
+    barrel -- so it turns to dark wood here, and so does the bung (a wooden
+    stopper). Only the parts that are iron on a real barrel stay in the
+    metal class: the grooves-and-bolts role (the hoops) and the seam strap.
+    Mapping the whole rim to metal was the first draft's grey-halo mistake."""
     return {
         "body": F.forge_material("wooddrum_body", "wood", (0.405, 0.223, 0.075),
                                  texture_path=GRAIN_PATH, projection="UV"),
         "lid": F.forge_material("wooddrum_lid", "wood", (0.356, 0.193, 0.066),
                                 texture_path=GRAIN_PATH, projection="UV"),
+        # stave-end rim and cap ring: dark wood, not steel
+        "chime": F.forge_material("wooddrum_rim", "wood", (0.190, 0.108, 0.048)),
+        "cap": F.forge_material("wooddrum_cap", "wood", (0.165, 0.095, 0.044)),
+        "bung": F.forge_material("wooddrum_bung", "wood", (0.240, 0.135, 0.055)),
+        # the iron: hoops with their bolts, and the seam strap
         "dark": F.forge_material("wooddrum_hoop", "metal", (0.150, 0.152, 0.146)),
-        "chime": F.forge_material("wooddrum_chime", "metal",
-                                  (0.158, 0.161, 0.154)),
         "strap_edge": F.forge_material("wooddrum_strap_edge", "metal",
                                        (0.140, 0.140, 0.134)),
         "strap_face": F.forge_material("wooddrum_strap_face", "wood",
