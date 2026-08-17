@@ -59,7 +59,12 @@ def make_fabric() -> Path:
     return write_surface_map(FABRIC_PATH, 768, 768, spec)
 
 
-def bevel(obj, width=0.11, segments=6):
+def bevel(obj, width=0.055, segments=6):
+    # 0.055 = ~4 px of rolled edge. At the first build's 0.11 the roll spanned
+    # ~8 px of turning normals, and under the soft fabric ramp that rendered
+    # as a broad shadow gradient along every junction -- the seat-to-backrest
+    # divider read as one thick dark band instead of vanilla's bright face
+    # meeting a crisp 1-2 px crease.
     mod = obj.modifiers.new("bevel", "BEVEL")
     mod.width = width
     mod.segments = segments

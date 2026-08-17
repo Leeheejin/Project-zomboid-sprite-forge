@@ -66,10 +66,13 @@ def cmd_build(args: argparse.Namespace) -> int:
         cut_groups: dict[str, list] = {}
         for cell in cells:
             cut_groups.setdefault(cell.facing, []).append(cell)
+        step_x, step_y = cell_size[0] // 2, cell_size[0] // 4
+        repaired = 0
         for cut_group in cut_groups.values():
             cut_palette = {
                 f"{c.x},{c.y}": list(finishmod.tile_pass_color(c.x, c.y))
                 for c in cut_group}
+            before_cut = {}
             for cell in cut_group:
                 tile_name = tile_files.get(cell.source)
                 if not tile_name or not (cells_dir / tile_name).exists():
@@ -78,9 +81,59 @@ def cmd_build(args: argparse.Namespace) -> int:
                     Image.open(cells_dir / tile_name),
                     f"{cell.x},{cell.y}", cut_palette)
                 tile_masks[cell.source] = mask
+                before_cut[cell.source] = cell.image.convert("RGBA")
                 cell.image = _mask_alpha(cell.image, mask)
+            # Seam repair: at the cut plane, an antialiased pixel can decode to
+            # a different tile in each cell's own (noisy) tile pass and get
+            # dropped from BOTH -- a pinhole showing the floor through the
+            # object. Any canvas position that was opaque before the cut but
+            # is opaque in no cell afterwards is restored into the front-most
+            # cell that had it.
+            if len(before_cut) > 1:
+                raw = [((c.x - c.y) * step_x, (c.x + c.y) * step_y)
+                       for c in cut_group]
+                minx = min(o[0] for o in raw)
+                miny = min(o[1] for o in raw)
+                offs = {c.source: (ox - minx, oy - miny)
+                        for c, (ox, oy) in zip(cut_group, raw)}
+                order = sorted((c for c in cut_group if c.source in before_cut),
+                               key=lambda c: (c.x + c.y, c.x), reverse=True)
+                w, h = cell_size
+                canvas_w = max(o[0] for o in offs.values()) + w
+                canvas_h = max(o[1] for o in offs.values()) + h
+                pre = [[0] * canvas_w for _ in range(canvas_h)]
+                post = [[0] * canvas_w for _ in range(canvas_h)]
+                loaded = {c.source: (before_cut[c.source].load(),
+                                     c.image.load()) for c in order}
+                for cell in order:
+                    ox, oy = offs[cell.source]
+                    bpx, apx = loaded[cell.source]
+                    for y in range(h):
+                        for x in range(w):
+                            if bpx[x, y][3] >= 128:
+                                pre[y + oy][x + ox] = 1
+                            if apx[x, y][3] >= 128:
+                                post[y + oy][x + ox] = 1
+                for cy in range(canvas_h):
+                    for cx in range(canvas_w):
+                        if not pre[cy][cx] or post[cy][cx]:
+                            continue
+                        for cell in order:
+                            ox, oy = offs[cell.source]
+                            if not (0 <= cx - ox < w and 0 <= cy - oy < h):
+                                continue
+                            bpx, apx = loaded[cell.source]
+                            p = bpx[cx - ox, cy - oy]
+                            if p[3] >= 128:
+                                apx[cx - ox, cy - oy] = p
+                                tile_masks[cell.source].putpixel(
+                                    (cx - ox, cy - oy), 255)
+                                repaired += 1
+                                break
         if tile_masks:
-            print(f"tile cut: {len(tile_masks)} cell(s) clipped to their own tile")
+            note = f", {repaired} seam pinhole(s) repaired" if repaired else ""
+            print(f"tile cut: {len(tile_masks)} cell(s) clipped to their own "
+                  f"tile{note}")
 
     # --- style pass -------------------------------------------------------
     toon = bool(manifest.get("toon"))
