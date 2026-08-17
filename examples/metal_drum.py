@@ -189,7 +189,9 @@ def drum_materials() -> dict:
     }
 
 
-def build_drum(mats: dict | None = None) -> list[bpy.types.Object]:
+def build_drum(mats: dict | None = None, *, grooves: bool = True,
+               seam_strap: bool = True, bolts: bool = True,
+               hoop_bands: tuple[float, ...] = ()) -> list[bpy.types.Object]:
     """Stage 2 -- the drum's SHAPE, material-agnostic.
 
     A first attempt with three fat bright rings and isotropic mottling scored inside
@@ -218,6 +220,11 @@ def build_drum(mats: dict | None = None) -> list[bpy.types.Object]:
     # Conflating them was exactly the wooden drum's grey-rim mistake.
     cap_mat = mats.get("cap", dark_mat)
     bung_mat = mats.get("bung", dark_mat)
+    # Rolling grooves, the bolted lower groove and the vertical seam strap are
+    # MATERIAL-BORN shapes -- pressed and clinched sheet steel. A recipe in
+    # another material turns them off and asks for ``hoop_bands`` instead:
+    # proud, wide binding bands (a barrel's iron hoops) at the given heights,
+    # drawn with the "dark" role's material.
 
     r = DIAMETER / 2
     parts = []
@@ -297,8 +304,20 @@ def build_drum(mats: dict | None = None) -> list[bpy.types.Object]:
     # the lid. Vanilla's rim is a ring *inside* the top ellipse.
     ring("drum_chime", r - CHIME_RADIUS, CHIME_RADIUS, body_top, chime_mat)
     # Rolling grooves: thin, dark lines -- the opposite of a proud bright hoop.
-    for i, z in enumerate(GROOVE_HEIGHTS):
-        ring(f"drum_groove_{i}", r, 0.007, z, dark_mat)
+    if grooves:
+        for i, z in enumerate(GROOVE_HEIGHTS):
+            ring(f"drum_groove_{i}", r, 0.007, z, dark_mat)
+    # Binding bands for non-steel builds: open tubes standing proud of the
+    # shell, wide enough (3-4 px on screen) to read as forged hoops.
+    for i, z in enumerate(hoop_bands):
+        bpy.ops.mesh.primitive_cylinder_add(
+            vertices=64, radius=r + 0.008, depth=0.055, location=(0, 0, z),
+            end_fill_type="NOTHING")
+        band = bpy.context.active_object
+        band.name = f"drum_hoop_band_{i}"
+        band.data.materials.append(dark_mat)
+        shade_curved_sides()
+        parts.append(band)
 
     # The vanilla bung sits near the lid's front-left rim, not its centre: its pixel
     # position (44, 172) against the lid centre (64, 155) inverts through the
@@ -309,7 +328,7 @@ def build_drum(mats: dict | None = None) -> list[bpy.types.Object]:
              smooth=False, verts=16).location = (0.075, -0.29, bung_z)
 
     # Bolt heads dotted along the lower groove, as in the sprite.
-    for k in range(9):
+    for k in range(9 if bolts else 0):
         angle = math.radians(k * 40.0)
         bpy.ops.mesh.primitive_uv_sphere_add(segments=10, ring_count=6, radius=0.013,
                                              location=(math.sin(angle) * (r + 0.006),
@@ -345,24 +364,26 @@ def build_drum(mats: dict | None = None) -> list[bpy.types.Object]:
         parts.append(obj)
         return obj
 
-    # Backing plate, visible only as the two dark edge lines...
-    strap_box("drum_strap_back", 0.044, 0.022, 0.002, strap_h, strap_mid,
-              strap_edge_mat)
-    # ...because a narrower body-toned face sits proud of it. This is what makes the
-    # seam read raised: paint on its face, shadow lines at its borders. The vanilla
-    # strap is petite -- about 5 px overall with a 3 px face and 1 px lines -- and
-    # every wider or prouder build read as tape stuck on the barrel: the box is
-    # tangent-flat against a curved surface, so excess width shows up as a dark
-    # side face and excess proudness as silhouette bumps.
-    strap_box("drum_strap_face", 0.026, 0.024, 0.004, strap_h, strap_mid,
-              strap_face_mat)
+    if seam_strap:
+        # Backing plate, visible only as the two dark edge lines...
+        strap_box("drum_strap_back", 0.044, 0.022, 0.002, strap_h, strap_mid,
+                  strap_edge_mat)
+        # ...because a narrower body-toned face sits proud of it. This is what
+        # makes the seam read raised: paint on its face, shadow lines at its
+        # borders. The vanilla strap is petite -- about 5 px overall with a
+        # 3 px face and 1 px lines -- and every wider or prouder build read as
+        # tape stuck on the barrel: the box is tangent-flat against a curved
+        # surface, so excess width shows up as a dark side face and excess
+        # proudness as silhouette bumps.
+        strap_box("drum_strap_face", 0.026, 0.024, 0.004, strap_h, strap_mid,
+                  strap_face_mat)
 
-    # Notches ride the strap's right edge in the sprite -- small lit blocks bridging
-    # the border line, not holes punched through the strap.
-    for k in range(5):
-        z = HEIGHT * (0.16 + 0.17 * k)
-        strap_box(f"drum_notch_{k}", 0.013, 0.022, 0.005, 0.020, z,
-                  strap_face_mat, tangent_shift=0.021)
+        # Notches ride the strap's right edge in the sprite -- small lit
+        # blocks bridging the border line, not holes punched through it.
+        for k in range(5):
+            z = HEIGHT * (0.16 + 0.17 * k)
+            strap_box(f"drum_notch_{k}", 0.013, 0.022, 0.005, 0.020, z,
+                      strap_face_mat, tangent_shift=0.021)
 
     return parts
 

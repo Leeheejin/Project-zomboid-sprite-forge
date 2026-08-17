@@ -51,9 +51,11 @@ def wood_drum_materials() -> dict:
     The role split matters more than the paints: the rim (chime + cap ring)
     is a MATERIAL-BORN shape -- rolled steel on the drum, stave ends on a
     barrel -- so it turns to dark wood here, and so does the bung (a wooden
-    stopper). Only the parts that are iron on a real barrel stay in the
-    metal class: the grooves-and-bolts role (the hoops) and the seam strap.
-    Mapping the whole rim to metal was the first draft's grey-halo mistake."""
+    stopper). The barrel's only iron is the "dark" role, which draws the
+    proud binding hoops main() asks for; the sheet-steel shapes (pressed
+    grooves, bolts, the clinched seam strap) are switched off there instead
+    of re-materialised. Mapping the whole rim to metal, and keeping steel's
+    grooves and strap at all, were the first drafts' two mistakes."""
     return {
         "body": F.forge_material("wooddrum_body", "wood", (0.405, 0.223, 0.075),
                                  texture_path=GRAIN_PATH, projection="UV"),
@@ -96,7 +98,12 @@ def main() -> None:
     scene.cycles.use_denoising = True
 
     subject = bpy.data.objects[F.SUBJECT_NAME]
-    for part in drum.build_drum(wood_drum_materials()):
+    # The pressed grooves, bolted groove and clinched seam strap are sheet-
+    # steel shapes -- a barrel has none of them. Its iron lives in proud,
+    # wide binding hoops instead, low and high on the shell.
+    for part in drum.build_drum(wood_drum_materials(), grooves=False,
+                                seam_strap=False, bolts=False,
+                                hoop_bands=(0.16, 0.62)):
         part.parent = subject
 
     manifest = F.render_cells(bpy.context)
