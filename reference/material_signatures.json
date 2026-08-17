@@ -1,0 +1,24 @@
+{
+ "_doc": "Material-class signatures measured over 40 object sprites each (tools/: signature = p10-p90 value spread, median saturation, median local value gradient, p90 gradient (hard-edge share), median 12px window tones).",
+ "metal": {
+  "spread": 0.3647,
+  "sat": 0.3601,
+  "grad": 0.0118,
+  "grad_p90": 0.0647,
+  "window_tones": 4
+ },
+ "wood": {
+  "spread": 0.2627,
+  "sat": 0.6067,
+  "grad": 0.0157,
+  "grad_p90": 0.0706,
+  "window_tones": 4
+ },
+ "fabric": {
+  "spread": 0.3471,
+  "sat": 0.3765,
+  "grad": 0.0078,
+  "grad_p90": 0.049,
+  "window_tones": 4
+ }
+}

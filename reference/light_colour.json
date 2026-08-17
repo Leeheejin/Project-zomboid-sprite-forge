@@ -1,0 +1,18 @@
+{
+  "sprites": 387,
+  "lit_chromaticity": [
+    1.0884,
+    1.0011,
+    0.8577
+  ],
+  "shaded_chromaticity": [
+    1.2176,
+    0.9635,
+    0.7589
+  ],
+  "lit_over_shaded": [
+    0.9684,
+    1.0284,
+    1.0312
+  ]
+}

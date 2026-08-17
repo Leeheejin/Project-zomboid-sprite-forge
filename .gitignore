@@ -1,0 +1,8 @@
+# Working renders, packaged mods and retouch round-trips are reproducible
+# outputs -- regenerate with the example scripts and pzforge build.
+build/
+dist/
+retouch/
+__pycache__/
+*.pyc
+*.blend1

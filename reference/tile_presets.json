@@ -1,0 +1,424 @@
+{
+  "appliance": {
+    "tiles_sampled": 365,
+    "core": {
+      "BlocksPlacement": "",
+      "CanScrap": "",
+      "Material": "Electric",
+      "IsMoveAble": ""
+    },
+    "common": [
+      {
+        "key": "PickUpWeight",
+        "value": "200",
+        "share": 0.638
+      },
+      {
+        "key": "Material2",
+        "value": "MetalScrap",
+        "share": 0.512
+      },
+      {
+        "key": "MaterialType",
+        "value": "Metal",
+        "share": 0.458
+      },
+      {
+        "key": "solidtrans",
+        "value": "",
+        "share": 0.419
+      },
+      {
+        "key": "Material3",
+        "value": "MetalScrap",
+        "share": 0.4
+      },
+      {
+        "key": "IsoType",
+        "value": "IsoStove",
+        "share": 0.381
+      },
+      {
+        "key": "PickUpLevel",
+        "value": "3",
+        "share": 0.301
+      },
+      {
+        "key": "CustomItem",
+        "value": "Base.HamRadio1",
+        "share": 0.263
+      },
+      {
+        "key": "ScrapSize",
+        "value": "Large",
+        "share": 0.247
+      },
+      {
+        "key": "IsTableTop",
+        "value": "",
+        "share": 0.236
+      }
+    ]
+  },
+  "counter": {
+    "tiles_sampled": 1110,
+    "core": {},
+    "common": [
+      {
+        "key": "Material",
+        "value": "Wood",
+        "share": 0.637
+      },
+      {
+        "key": "CanScrap",
+        "value": "",
+        "share": 0.62
+      },
+      {
+        "key": "IsMoveAble",
+        "value": "",
+        "share": 0.603
+      },
+      {
+        "key": "PickUpWeight",
+        "value": "100",
+        "share": 0.603
+      },
+      {
+        "key": "BlocksPlacement",
+        "value": "",
+        "share": 0.497
+      },
+      {
+        "key": "PickUpTool",
+        "value": "Hammer",
+        "share": 0.436
+      },
+      {
+        "key": "PlaceTool",
+        "value": "Hammer",
+        "share": 0.425
+      },
+      {
+        "key": "Material2",
+        "value": "Nails",
+        "share": 0.321
+      },
+      {
+        "key": "MoveType",
+        "value": "WallObject",
+        "share": 0.314
+      },
+      {
+        "key": "PickUpLevel",
+        "value": "2",
+        "share": 0.306
+      }
+    ]
+  },
+  "door": {
+    "tiles_sampled": 166,
+    "core": {
+      "Material": "Door",
+      "CanScrap": "",
+      "MaterialType": "Plastic",
+      "Material2": "Wood"
+    },
+    "common": [
+      {
+        "key": "attachedN",
+        "value": "",
+        "share": 0.398
+      },
+      {
+        "key": "attachedW",
+        "value": "",
+        "share": 0.38
+      },
+      {
+        "key": "doorTrans",
+        "value": "",
+        "share": 0.361
+      },
+      {
+        "key": "doorW",
+        "value": "",
+        "share": 0.199
+      },
+      {
+        "key": "doorN",
+        "value": "",
+        "share": 0.199
+      }
+    ]
+  },
+  "fence": {
+    "tiles_sampled": 1221,
+    "core": {
+      "CanScrap": "",
+      "Material": "MetalBars"
+    },
+    "common": [
+      {
+        "key": "wall",
+        "value": "",
+        "share": 0.576
+      },
+      {
+        "key": "CloseSneakBonus",
+        "value": "250",
+        "share": 0.528
+      },
+      {
+        "key": "HitByCar",
+        "value": "",
+        "share": 0.472
+      },
+      {
+        "key": "Material2",
+        "value": "Nails",
+        "share": 0.271
+      },
+      {
+        "key": "ScrapSize",
+        "value": "Small",
+        "share": 0.243
+      },
+      {
+        "key": "WallWTrans",
+        "value": "",
+        "share": 0.229
+      },
+      {
+        "key": "WallNTrans",
+        "value": "",
+        "share": 0.225
+      },
+      {
+        "key": "TallHoppableW",
+        "value": "",
+        "share": 0.218
+      },
+      {
+        "key": "TallHoppableN",
+        "value": "",
+        "share": 0.215
+      },
+      {
+        "key": "attachedFloor",
+        "value": "",
+        "share": 0.206
+      }
+    ]
+  },
+  "floor": {
+    "tiles_sampled": 485,
+    "core": {
+      "attachedFloor": ""
+    },
+    "common": [
+      {
+        "key": "solidfloor",
+        "value": "",
+        "share": 0.511
+      },
+      {
+        "key": "IsMoveAble",
+        "value": "",
+        "share": 0.495
+      },
+      {
+        "key": "MoveType",
+        "value": "FloorRug",
+        "share": 0.495
+      },
+      {
+        "key": "PickUpWeight",
+        "value": "10",
+        "share": 0.495
+      },
+      {
+        "key": "Material",
+        "value": "Fabric",
+        "share": 0.435
+      },
+      {
+        "key": "diamondFloor",
+        "value": "",
+        "share": 0.365
+      },
+      {
+        "key": "exterior",
+        "value": "",
+        "share": 0.336
+      },
+      {
+        "key": "FloorOverlay",
+        "value": "",
+        "share": 0.307
+      },
+      {
+        "key": "CanBreak",
+        "value": "",
+        "share": 0.212
+      },
+      {
+        "key": "PickUpTool",
+        "value": "Cutter",
+        "share": 0.212
+      }
+    ]
+  },
+  "furniture": {
+    "tiles_sampled": 710,
+    "core": {
+      "CanScrap": "",
+      "IsMoveAble": "",
+      "Material": "Wood",
+      "PickUpWeight": "75",
+      "BlocksPlacement": "",
+      "Material2": "Nails",
+      "IsLow": "",
+      "ScrapSize": "Small",
+      "solidtrans": ""
+    },
+    "common": [
+      {
+        "key": "bed",
+        "value": "",
+        "share": 0.577
+      },
+      {
+        "key": "CanBreak",
+        "value": "",
+        "share": 0.575
+      },
+      {
+        "key": "PickUpTool",
+        "value": "Hammer",
+        "share": 0.563
+      },
+      {
+        "key": "PlaceTool",
+        "value": "Hammer",
+        "share": 0.563
+      },
+      {
+        "key": "PickUpLevel",
+        "value": "2",
+        "share": 0.518
+      },
+      {
+        "key": "Material3",
+        "value": "Fabric",
+        "share": 0.487
+      },
+      {
+        "key": "MaterialType",
+        "value": "Wood",
+        "share": 0.406
+      },
+      {
+        "key": "IsTable",
+        "value": "",
+        "share": 0.242
+      },
+      {
+        "key": "livingRoom",
+        "value": "",
+        "share": 0.152
+      }
+    ]
+  },
+  "vegetation": {
+    "tiles_sampled": 2585,
+    "core": {
+      "BlocksPlacement": "",
+      "attachedFloor": ""
+    },
+    "common": []
+  },
+  "wall": {
+    "tiles_sampled": 9919,
+    "core": {
+      "wall": ""
+    },
+    "common": [
+      {
+        "key": "IsPaintable",
+        "value": "",
+        "share": 0.228
+      },
+      {
+        "key": "PaintingType",
+        "value": "windowsframe",
+        "share": 0.22
+      },
+      {
+        "key": "GrimeType",
+        "value": "FullWindow",
+        "share": 0.18
+      },
+      {
+        "key": "WindowW",
+        "value": "",
+        "share": 0.156
+      },
+      {
+        "key": "WindowN",
+        "value": "",
+        "share": 0.156
+      }
+    ],
+    "sequence": [
+      {
+        "WallW": ""
+      },
+      {
+        "WallN": ""
+      },
+      {
+        "WallNW": "",
+        "CornerWestWall": "{sprite:0}",
+        "CornerNorthWall": "{sprite:1}"
+      },
+      {
+        "WallSE": ""
+      }
+    ]
+  },
+  "window": {
+    "tiles_sampled": 642,
+    "core": {
+      "IsMoveAble": "",
+      "MoveType": "Window",
+      "PickUpWeight": "200",
+      "CanBreak": "",
+      "PickUpLevel": "2",
+      "PickUpTool": "Crowbar",
+      "PlaceTool": "Hammer"
+    },
+    "common": [
+      {
+        "key": "MaterialType",
+        "value": "Glass",
+        "share": 0.629
+      },
+      {
+        "key": "attachedW",
+        "value": "",
+        "share": 0.461
+      },
+      {
+        "key": "attachedN",
+        "value": "",
+        "share": 0.424
+      },
+      {
+        "key": "IsClosedState",
+        "value": "",
+        "share": 0.318
+      }
+    ]
+  }
+}

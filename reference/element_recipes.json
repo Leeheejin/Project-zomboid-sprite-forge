@@ -1,0 +1,31 @@
+{
+ "sampled_sprites": 400,
+ "line": {
+  "thickness_px": 1.9333333333333333,
+  "value_ratio_vs_body": 1.067142470173951,
+  "accent_amount": 0.019607843137254888,
+  "regions": 2371
+ },
+ "fitting": {
+  "tones_90": 2,
+  "spread": 0.03529411764705881,
+  "grad_x": 0.0007457098991854643,
+  "grad_y": 0.0028386131537995133,
+  "regions": 3636,
+  "value_ratio_vs_body": 1.1952363668491819
+ },
+ "face": {
+  "tones_90": 2,
+  "spread": 0.05098039215686276,
+  "grad_x": 0.0006074976626243185,
+  "grad_y": 0.006222657811276154,
+  "regions": 1034
+ },
+ "window_tones": {
+  "window_px": 12,
+  "median": 3,
+  "p25": 2,
+  "p75": 5,
+  "windows": 44669
+ }
+}

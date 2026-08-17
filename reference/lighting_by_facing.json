@@ -1,0 +1,18 @@
+{
+  "E": {
+    "sprites": 404,
+    "mean_luminance": 96.37
+  },
+  "N": {
+    "sprites": 26,
+    "mean_luminance": 63.71
+  },
+  "S": {
+    "sprites": 395,
+    "mean_luminance": 119.18
+  },
+  "W": {
+    "sprites": 26,
+    "mean_luminance": 76.35
+  }
+}

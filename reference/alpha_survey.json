@@ -1,0 +1,18 @@
+[
+  {
+    "pack": "Tiles2x.floor.pack",
+    "sprites": 300,
+    "fully_hard_edged": 118,
+    "hard_edged_share": 0.393,
+    "partial_alpha_median": 0.1125,
+    "partial_alpha_p90": 1.0
+  },
+  {
+    "pack": "Tiles2x.pack",
+    "sprites": 300,
+    "fully_hard_edged": 44,
+    "hard_edged_share": 0.147,
+    "partial_alpha_median": 0.0851,
+    "partial_alpha_p90": 0.6254
+  }
+]

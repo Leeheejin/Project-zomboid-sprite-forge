@@ -1,0 +1,42 @@
+{
+  "albedo": 0.5,
+  "targets": {
+    "S": 119.18,
+    "E": 96.37,
+    "N": 63.71,
+    "S/E": 1.2367,
+    "N/S": 0.5346
+  },
+  "face_mask_pixels": {
+    "S": 4888,
+    "E": 4889,
+    "top": 3968
+  },
+  "solved": {
+    "azimuth_deg": 26,
+    "sun_strength": 1.32,
+    "ambient_strength": 0.102,
+    "S": 119.2,
+    "E": 95.9,
+    "N": 63.8,
+    "S/E": 1.2425,
+    "N/S": 0.5351,
+    "error": 0.00585,
+    "key_per_unit": {
+      "S": 0.1016,
+      "E": 0.04987,
+      "top": 0.113
+    },
+    "ambient_per_unit": {
+      "S": 0.49897,
+      "E": 0.49894,
+      "top": 0.49897
+    }
+  },
+  "verified": {
+    "S": 119.1,
+    "E": 95.9,
+    "top": 123.6
+  },
+  "verification_drift": 0.052
+}
