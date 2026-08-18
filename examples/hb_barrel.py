@@ -35,30 +35,87 @@ import wood_drum  # noqa: E402
 OUT = ROOT / "build" / "hb_barrel_cells"
 
 
+#: Barrel proportions: a BELLY, not a drum -- staves bow out to the bilge at
+#: mid-height and narrow to the heads. Two truncated cones give the bulge in
+#: vanilla's low-poly form language.
+BARREL_H = 0.88
+HEAD_R = 0.285
+BILGE_R = 0.375
+
+
+def _r_at(z: float) -> float:
+    """Stave radius at height z, for hoops and fittings that follow the bow."""
+    half = BARREL_H / 2
+    t = z / half if z <= half else (BARREL_H - z) / half
+    return HEAD_R + (BILGE_R - HEAD_R) * t
+
+
 def build_barrel() -> list[bpy.types.Object]:
-    parts = drum.build_drum(wood_drum.wood_drum_materials(), grooves=False,
-                            seam_strap=False, bolts=False,
-                            hoop_bands=(0.16, 0.62))
-    # Iron spigot: a small peg low on the south face, the drawing-off cue
-    # every fermenter carries.
+    mats = wood_drum.wood_drum_materials()
     spigot_mat = F.forge_material("hbbarrel_spigot", "metal",
                                   (0.150, 0.152, 0.146))
-    # Sized for the sprite, not for realism: a to-scale spigot rendered 2 px
-    # and vanished; this one reads as ~5x8 px of iron, placed BETWEEN the hoops -- at hoop height it disappeared into the band.
-    r = drum.DIAMETER / 2
+    parts = []
+
+    def smooth():
+        try:
+            bpy.ops.object.shade_auto_smooth(angle=math.radians(40))
+        except (AttributeError, TypeError, RuntimeError):
+            bpy.ops.object.shade_smooth()
+
+    def add(name, material, do_smooth=True):
+        obj = bpy.context.active_object
+        obj.name = name
+        if do_smooth:
+            smooth()
+        obj.data.materials.append(material)
+        parts.append(obj)
+        return obj
+
+    # The bowed body: lower cone flares head-to-bilge, upper cone narrows
+    # bilge-to-head.
+    half = BARREL_H / 2
+    bpy.ops.mesh.primitive_cone_add(vertices=48, radius1=HEAD_R,
+                                    radius2=BILGE_R, depth=half,
+                                    location=(0, 0, half / 2))
+    add("barrel_lower", mats["body"])
+    bpy.ops.mesh.primitive_cone_add(vertices=48, radius1=BILGE_R,
+                                    radius2=HEAD_R, depth=half,
+                                    location=(0, 0, half * 1.5))
+    add("barrel_upper", mats["body"])
+
+    # Head: recessed lid inside a stave-end rim, the wood drum's top formula.
+    bpy.ops.mesh.primitive_torus_add(major_radius=HEAD_R - 0.012,
+                                     minor_radius=0.014, major_segments=48,
+                                     minor_segments=8,
+                                     location=(0, 0, BARREL_H))
+    add("barrel_rim", mats["chime"], do_smooth=False)
+    bpy.ops.mesh.primitive_cylinder_add(vertices=48, radius=HEAD_R - 0.022,
+                                        depth=0.012,
+                                        location=(0, 0, BARREL_H - 0.008))
+    add("barrel_lid", mats["lid"], do_smooth=False)
+    bpy.ops.mesh.primitive_cylinder_add(vertices=16, radius=0.034, depth=0.02,
+                                        location=(0.08, -0.10,
+                                                  BARREL_H + 0.004))
+    add("barrel_bung", mats["bung"], do_smooth=False)
+
+    # Iron hoops near the heads, riding the bow's local radius.
+    for i, z in enumerate((0.10, BARREL_H - 0.10)):
+        bpy.ops.mesh.primitive_cylinder_add(vertices=48,
+                                            radius=_r_at(z) + 0.008,
+                                            depth=0.05, location=(0, 0, z),
+                                            end_fill_type="NOTHING")
+        add(f"hoop_{i}", mats["dark"])
+
+    # Iron spigot on the belly front. Sized for the sprite, not for realism:
+    # a to-scale spigot rendered 2 px and vanished.
+    ry = _r_at(0.30)
     bpy.ops.mesh.primitive_cylinder_add(vertices=12, radius=0.028, depth=0.12,
-                                        location=(0.0, -(r + 0.045), 0.30))
-    spigot = bpy.context.active_object
-    spigot.name = "spigot"
+                                        location=(0.0, -(ry + 0.035), 0.30))
+    spigot = add("spigot", spigot_mat, do_smooth=False)
     spigot.rotation_euler = (math.radians(90), 0.0, 0.0)
-    spigot.data.materials.append(spigot_mat)
-    parts.append(spigot)
     bpy.ops.mesh.primitive_cylinder_add(vertices=10, radius=0.016, depth=0.055,
-                                        location=(0.0, -(r + 0.085), 0.255))
-    tap = bpy.context.active_object
-    tap.name = "spigot_tap"
-    tap.data.materials.append(spigot_mat)
-    parts.append(tap)
+                                        location=(0.0, -(ry + 0.075), 0.255))
+    add("spigot_tap", spigot_mat, do_smooth=False)
     return parts
 
 
