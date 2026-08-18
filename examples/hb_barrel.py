@@ -52,11 +52,22 @@ def _r_at(z: float) -> float:
 
 def build_barrel() -> list[bpy.types.Object]:
     mats = wood_drum.wood_drum_materials()
-    # The lathed body has no UVs, so its wood takes the class's BOX projection
-    # (wood_drum's UV-projected body material sampled one texel and rendered
-    # nearly blank on this mesh).
-    body_mat = F.forge_material("hbbarrel_body", "wood", (0.405, 0.223, 0.075),
-                                texture_path=str(wood_drum.GRAIN_PATH))
+    # STAVES, not one log: the body carries eight vertical planks, each with
+    # its own tone (the table's alternating-plank formula bent around the
+    # bow) and a hand-built cylindrical UV so the grain runs down every
+    # stave. A single BOX-projected material read as one carved trunk.
+    base = (0.405, 0.223, 0.075)
+    stave_tones = [1.0, 0.86, 1.08, 0.94, 1.02, 0.90, 1.12, 0.97]
+    # Swing narrowed from the wood default (0.40-1.60): at full swing the
+    # grain drowned the stave tones and the bow read as mottle. A stave is
+    # NEAR-FLAT tone with grain as a whisper; the plank read comes from the
+    # tone steps and the dark seam columns between them.
+    stave_mats = [F.forge_material(f"hbbarrel_stave_{k}", "wood",
+                                   tuple(c * t for c in base),
+                                   texture_path=str(wood_drum.GRAIN_PATH),
+                                   projection="UV", swing=(0.70, 1.30))
+                  for k, t in enumerate(stave_tones)]
+    seam_mat = F.forge_material("hbbarrel_seam", "wood", (0.150, 0.095, 0.045))
     spigot_mat = F.forge_material("hbbarrel_spigot", "metal",
                                   (0.150, 0.152, 0.146))
     parts = []
@@ -98,6 +109,23 @@ def build_barrel() -> list[bpy.types.Object]:
                           b[(i + 1) % seg], b[i]))
     bm.faces.new(reversed(ring_verts[0]))
     bm.faces.new(ring_verts[-1])
+    # Cylindrical UVs (u around, v up) and one material slot per stave.
+    uv_layer = bm.loops.layers.uv.new("UVMap")
+    n_staves = len(stave_mats)
+    for face in bm.faces:
+        us = []
+        for loop in face.loops:
+            x, y, z = loop.vert.co
+            us.append((math.atan2(y, x) / (2 * math.pi)) % 1.0)
+        if max(us) - min(us) > 0.5:   # the wrap seam face
+            us = [u + 1.0 if u < 0.5 else u for u in us]
+        for loop, u in zip(face.loops, us):
+            loop[uv_layer].uv = (u, loop.vert.co.z / BARREL_H)
+        centre_u = (sum(us) / len(us)) % 1.0
+        pos = centre_u * n_staves
+        # first sixth of each stave = the drawn seam between planks
+        face.material_index = (n_staves if (pos % 1.0) < 1.0 / 6.0
+                               else int(pos) % n_staves)
     bm.to_mesh(mesh)
     bm.free()
     body = bpy.data.objects.new("barrel_body", mesh)
@@ -105,7 +133,9 @@ def build_barrel() -> list[bpy.types.Object]:
     bpy.context.view_layer.objects.active = body
     body.select_set(True)
     bpy.ops.object.shade_auto_smooth(angle=math.radians(40))
-    body.data.materials.append(body_mat)
+    for m in stave_mats:
+        body.data.materials.append(m)
+    body.data.materials.append(seam_mat)
     parts.append(body)
 
     # Head: recessed lid inside a stave-end rim, the wood drum's top formula.
