@@ -74,6 +74,8 @@ the labelled comparison shots.
 | `sofa.py` | multi-tile footprint, fabric class, retouch round trip | below |
 | `brick_wall.py` | wall sets: isolated tiles, per-sprite roles, brick bond | below |
 | `wood_drum.py` | the composition test: steel geometry, oak materials | above |
+| `metal_still.py` | the no-reference path: an original object from the measured classes | below |
+| `hb_still.py` / `hb_barrel.py` | shipping recipes for a real mod: face-SINGLE view choice, a lathed stave barrel | below |
 
 ![vanilla couch vs the two-tile fabric recreation](docs/sofa_compare.png)
 
@@ -91,6 +93,13 @@ reference suggests (`texture.bolden`); the right columns are the play-distance
 check:
 
 ![vanilla vs forge at 2x, then 1x and 0.5x](docs/bold_sheet.png)
+
+The workflow's end state is shipping original objects with no vanilla
+counterpart: a moonshine still and a stave fermentation barrel, composed
+entirely from the measured classes, staged here with the tool's own table on
+a vanilla floor -- these two are live in the Home Brewing workshop mod:
+
+![the Home Brewing mod's still and fermentation barrels on a vanilla floor](docs/hb_promo.png)
 
 ## Modelling rules the rig enforces
 
