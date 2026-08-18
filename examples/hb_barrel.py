@@ -44,14 +44,19 @@ BILGE_R = 0.375
 
 
 def _r_at(z: float) -> float:
-    """Stave radius at height z, for hoops and fittings that follow the bow."""
-    half = BARREL_H / 2
-    t = z / half if z <= half else (BARREL_H - z) / half
-    return HEAD_R + (BILGE_R - HEAD_R) * t
+    """Stave radius at height z -- the SAME parabola the lathed body uses.
+    (A linear two-cone formula left the hoops buried inside the bow.)"""
+    u = 2.0 * z / BARREL_H - 1.0
+    return BILGE_R - (BILGE_R - HEAD_R) * (u * u)
 
 
 def build_barrel() -> list[bpy.types.Object]:
     mats = wood_drum.wood_drum_materials()
+    # The lathed body has no UVs, so its wood takes the class's BOX projection
+    # (wood_drum's UV-projected body material sampled one texel and rendered
+    # nearly blank on this mesh).
+    body_mat = F.forge_material("hbbarrel_body", "wood", (0.405, 0.223, 0.075),
+                                texture_path=str(wood_drum.GRAIN_PATH))
     spigot_mat = F.forge_material("hbbarrel_spigot", "metal",
                                   (0.150, 0.152, 0.146))
     parts = []
@@ -71,17 +76,37 @@ def build_barrel() -> list[bpy.types.Object]:
         parts.append(obj)
         return obj
 
-    # The bowed body: lower cone flares head-to-bilge, upper cone narrows
-    # bilge-to-head.
-    half = BARREL_H / 2
-    bpy.ops.mesh.primitive_cone_add(vertices=48, radius1=HEAD_R,
-                                    radius2=BILGE_R, depth=half,
-                                    location=(0, 0, half / 2))
-    add("barrel_lower", mats["body"])
-    bpy.ops.mesh.primitive_cone_add(vertices=48, radius1=BILGE_R,
-                                    radius2=HEAD_R, depth=half,
-                                    location=(0, 0, half * 1.5))
-    add("barrel_upper", mats["body"])
+    # The bowed body: ONE lathed mesh with a parabolic stave profile. Two
+    # stacked cones put a hard kink at the bilge -- separate meshes cannot
+    # share smoothing, and the silhouette broke into an angle instead of a
+    # bow. Nine rings keep the curve smooth at sprite scale.
+    import bmesh
+    seg, rings = 48, 9
+    mesh = bpy.data.meshes.new("barrel_body")
+    bm = bmesh.new()
+    ring_verts = []
+    for k in range(rings):
+        z = BARREL_H * k / (rings - 1)
+        u = 2.0 * z / BARREL_H - 1.0
+        r = BILGE_R - (BILGE_R - HEAD_R) * (u * u)
+        ring_verts.append([bm.verts.new((r * math.cos(2 * math.pi * i / seg),
+                                         r * math.sin(2 * math.pi * i / seg),
+                                         z)) for i in range(seg)])
+    for a, b in zip(ring_verts, ring_verts[1:]):
+        for i in range(seg):
+            bm.faces.new((a[i], a[(i + 1) % seg],
+                          b[(i + 1) % seg], b[i]))
+    bm.faces.new(reversed(ring_verts[0]))
+    bm.faces.new(ring_verts[-1])
+    bm.to_mesh(mesh)
+    bm.free()
+    body = bpy.data.objects.new("barrel_body", mesh)
+    bpy.context.collection.objects.link(body)
+    bpy.context.view_layer.objects.active = body
+    body.select_set(True)
+    bpy.ops.object.shade_auto_smooth(angle=math.radians(40))
+    body.data.materials.append(body_mat)
+    parts.append(body)
 
     # Head: recessed lid inside a stave-end rim, the wood drum's top formula.
     bpy.ops.mesh.primitive_torus_add(major_radius=HEAD_R - 0.012,
